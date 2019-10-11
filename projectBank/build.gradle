@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group 'com.invillia'
+version '1.0.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.8'
+    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '4.1.7.Final'
+    compile group: 'br.com.caelum.stella', name: 'caelum-stella-core', version: '2.1.2'
+}
