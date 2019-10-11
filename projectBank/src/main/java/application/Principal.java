@@ -8,7 +8,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.swing.*;
 import java.sql.SQLOutput;
-import java.util.Scanner;
+
 
 public class Principal {
     public static void main(String[] args) {
@@ -21,7 +21,7 @@ public class Principal {
 
         System.out.println("######## Conectado ao banco! #########");
         final AccountDAO accountsDAO = new AccountDAO(entityManager);
-
+        Account account = new Account();
         do{
             option = Integer.parseInt(JOptionPane.showInputDialog("\nBem-vindo ao Incuba Bank!\n"
                     +"O que vamos fazer hoje?\n"
@@ -34,17 +34,7 @@ public class Principal {
                     + "7 - Sair"));
             switch (option){
                 case 1:
-                    String userName = (JOptionPane.showInputDialog("Digite o nome do correntista: "));
-                    String userCPF = (JOptionPane.showInputDialog("Digite o CPF do correntista: "));
-                    while (Account.validateCPF(userCPF) == false){
-                        JOptionPane.showMessageDialog(null, "CPF inválido");
-                        userCPF = (JOptionPane.showInputDialog("Digite o CPF do correntista: "));
-                        Account.validateCPF(userCPF);
-                    }
-                    int accountNumber = Integer.parseInt(JOptionPane.showInputDialog("Digite o número da conta"));
-                    double accountLimit = Double.parseDouble(JOptionPane.showInputDialog("Digite o limite da conta: "));
-                    accountsDAO.insert(new Account(accountNumber, 0.0, accountLimit, userName, userCPF,
-                            0.0, accountLimit));
+                    account.createAccount(accountsDAO);
                     break;
                 case 2:
                     JOptionPane.showMessageDialog(null, accountsDAO.findAll());
@@ -54,42 +44,13 @@ public class Principal {
                     JOptionPane.showMessageDialog(null, accountsDAO.findById(id));
                     break;
                 case 4:
-                    id = Long.valueOf(JOptionPane.showInputDialog("Digite o id da conta"));
-                    Account accounts = accountsDAO.findById(id);
-                    accountLimit = Double.parseDouble(JOptionPane.showInputDialog("Digite o novo limite da conta: "));
-                    userName = (JOptionPane.showInputDialog("Digite o novo nome do correntista: "));
-                    userCPF = (JOptionPane.showInputDialog("Digite o novo CPF do correntista: "));
-                    while (Account.validateCPF(userCPF) == false) {
-                        JOptionPane.showMessageDialog(null, "CPF inválido");
-                        userCPF = (JOptionPane.showInputDialog("Digite o CPF do correntista: "));
-                        Account.validateCPF(userCPF);
-                    }
-                    accounts.setAccountLimit(accountLimit);
-                    accounts.setUserName(userName);
-                    accounts.setUserCPF(userCPF);
-                    accounts.setInitialLimit(accountLimit);
-                    accountsDAO.update(accounts);
+                    account.updateAccount(accountsDAO);
                     break;
                 case 5:
-                    id = Long.valueOf(JOptionPane.showInputDialog("Digite o id da conta que será excluida"));
-                    accountsDAO.deleteById(id);
+                    account.deleteAccount(accountsDAO);
                     break;
                 case 6:
-                    id = Long.valueOf(JOptionPane.showInputDialog("Digite o id da conta"));
-                    accounts = accountsDAO.findById(id);
-                    int choice = Integer.parseInt(JOptionPane.showInputDialog("1 - Sacar\n2 - Depositar"));
-                    if(choice == 1){
-                        double value = Double.parseDouble(JOptionPane.showInputDialog("Digite o valor do saque: "));
-                        accounts.withdrawn(value);
-                        accountsDAO.update(accounts);
-                    }else if(choice == 2){
-                        double value = Double.parseDouble(JOptionPane.showInputDialog("Digite o valor do depósito: "));
-                        accounts.deposit(value);
-                        accountsDAO.update(accounts);
-                    }
-                    else{
-                        JOptionPane.showMessageDialog(null, "Opção inválida!");
-                    }
+                    account.operationAccount(account, accountsDAO);
                     break;
                 case 7:
                     JOptionPane.showMessageDialog(null, "Obrigado por utilizar o Incuba Bank");

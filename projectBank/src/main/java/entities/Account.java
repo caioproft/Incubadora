@@ -1,5 +1,6 @@
 package entities;
 
+import DAO.AccountDAO;
 import br.com.caelum.stella.ValidationMessage;
 import br.com.caelum.stella.validation.CPFValidator;
 
@@ -9,32 +10,31 @@ import java.util.List;
 import java.util.Scanner;
 
 @Entity
-@Table(name = "account")
 public class Account {
 
     // Atributos da classe
-    @Column(name= "account_debt")
+//    @Column(name= "account_debt")
     private Double accountDebt;
-    @Column(name = "initial_limit")
+//    @Column(name = "initial_limit")
     private Double initialLimit;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "account_number", nullable = false)
+//    @Column(name = "account_number", nullable = false)
     private Integer accountNumber;
 
-    @Column(name = "account_balance", nullable = false)
+//    @Column(name = "account_balance", nullable = false)
     private Double accountBalance;
 
-    @Column(name = "account_limit", nullable = false)
+//    @Column(name = "account_limit", nullable = false)
     private Double accountLimit;
 
-    @Column(name = "user_name", nullable = false)
+//    @Column(name = "user_name", nullable = false)
     private String userName;
 
-    @Column(name = "user_cpf", nullable = false, length = 14)
+//    @Column(name = "user_cpf", nullable = false, length = 14)
     private String userCPF;
 
     // Construtores
@@ -176,5 +176,64 @@ public class Account {
         }
         JOptionPane.showMessageDialog(null, "Depósito efetuado com sucesso!\n"
                 + "Obrigado por ser Incuba Bank.");
+    }
+
+    // Método para criar uma conta
+    public void createAccount(AccountDAO accountsDAO){
+        String userName = (JOptionPane.showInputDialog("Digite o nome do correntista: "));
+        String userCPF = (JOptionPane.showInputDialog("Digite o CPF do correntista: "));
+        while (Account.validateCPF(userCPF) == false){
+            JOptionPane.showMessageDialog(null, "CPF inválido");
+            userCPF = (JOptionPane.showInputDialog("Digite o CPF do correntista: "));
+            Account.validateCPF(userCPF);
+        }
+        int accountNumber = Integer.parseInt(JOptionPane.showInputDialog("Digite o número da conta"));
+        double accountLimit = Double.parseDouble(JOptionPane.showInputDialog("Digite o limite da conta: "));
+        accountsDAO.insert(new Account(accountNumber, 0.0, accountLimit, userName, userCPF,
+                0.0, accountLimit));
+    }
+
+    // Método para atualizar uma conta
+    public void updateAccount(AccountDAO accountsDAO){
+        id = Long.valueOf(JOptionPane.showInputDialog("Digite o id da conta"));
+        Account accounts = accountsDAO.findById(id);
+        accountLimit = Double.parseDouble(JOptionPane.showInputDialog("Digite o novo limite da conta: "));
+        userName = (JOptionPane.showInputDialog("Digite o novo nome do correntista: "));
+        userCPF = (JOptionPane.showInputDialog("Digite o novo CPF do correntista: "));
+        while (Account.validateCPF(userCPF) == false) {
+            JOptionPane.showMessageDialog(null, "CPF inválido");
+            userCPF = (JOptionPane.showInputDialog("Digite o CPF do correntista: "));
+            Account.validateCPF(userCPF);
+        }
+        accounts.setAccountLimit(accountLimit);
+        accounts.setUserName(userName);
+        accounts.setUserCPF(userCPF);
+        accounts.setInitialLimit(accountLimit);
+        accountsDAO.update(accounts);
+    }
+
+    // Método para deletar uma conta
+    public void deleteAccount(AccountDAO accountsDAO){
+        id = Long.valueOf(JOptionPane.showInputDialog("Digite o id da conta que será excluida"));
+        accountsDAO.deleteById(id);
+    }
+
+    // Método para operaçãos de saque e depósito da conta
+    public void operationAccount(Account accounts, AccountDAO accountsDAO){
+        id = Long.valueOf(JOptionPane.showInputDialog("Digite o id da conta"));
+                    accounts = accountsDAO.findById(id);
+                    int choice = Integer.parseInt(JOptionPane.showInputDialog("1 - Sacar\n2 - Depositar"));
+                    if(choice == 1){
+                        double value = Double.parseDouble(JOptionPane.showInputDialog("Digite o valor do saque: "));
+                        accounts.withdrawn(value);
+                        accountsDAO.update(accounts);
+                    }else if(choice == 2){
+                        double value = Double.parseDouble(JOptionPane.showInputDialog("Digite o valor do depósito: "));
+                        accounts.deposit(value);
+                        accountsDAO.update(accounts);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "Opção inválida!");
+                    }
     }
 }
